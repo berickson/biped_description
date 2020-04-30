@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<robot name ="biped" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot name ="biped" 
+  xmlns:xacro="http://www.ros.org/wiki/xacro">
   <xacro:property name = "foot_width" value = "0.05"/>
   <xacro:property name = "foot_height" value = "0.005"/>
   <xacro:property name = "foot_length" value = "0.1000"/>
@@ -8,61 +9,88 @@
   <xacro:property name = "lower_leg_height" value = "0.02"/>
   <xacro:property name = "lower_leg_length" value = "0.20"/>
   <material name="body">
-      <color rgba="0.5 0.5 0.3 0.7"/>
+    <color rgba="0.5 0.5 0.3 0.7"/>
   </material>
 
-  
+
+  <link name="base_link"></link>
+
   <link name="left_foot">
-  		<inertial>
-	  		<origin xyz="0 0 0" rpy="0 0.0 0.0"/>
-  	  		<mass value="2.043"/>
-	  		<inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>
-		</inertial>
-		<visual>
-	  		<origin xyz="0 0 ${foot_height/2}" rpy="0 0.0 0.0"/>
-            <geometry>
-              <box size="${foot_length} ${foot_width} ${foot_height}" />
-            </geometry>
-            <material name = "foot">
-            <color rgba="0.7 0 0 0.7"/>
-            </material>
-   		</visual>
-		<collision>
-	  		<origin xyz="0 0 ${foot_height/2}" rpy="0 0.0 0.0"/>
-            <geometry>
-              <box size="${foot_length} ${foot_width} ${foot_height}" />
-            </geometry>
-			<contact_coefficients kd="1.0" kp="1000.0" mu="0"/>
-		</collision>  
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0.0 0.0"/>
+      <mass value="2.043"/>
+      <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 ${foot_height/2}" rpy="0 0.0 0.0"/>
+      <geometry>
+        <box size="${foot_length} ${foot_width} ${foot_height}" />
+      </geometry>
+      <material name = "foot">
+        <color rgba="0.7 0 0 0.7"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${foot_height/2}" rpy="0 0.0 0.0"/>
+      <geometry>
+        <box size="${foot_length} ${foot_width} ${foot_height}" />
+      </geometry>
+      <contact_coefficients kd="1.0" kp="1000.0" mu="0"/>
+    </collision>
   </link>
   <link name = "lower_left_leg">
-  		<inertial>
-	  		<origin xyz="0 0 ${lower_leg_length/2}"  rpy="0 ${-pi/2} 0.0"/>
-  	  		<mass value="2.043"/>
-	  		<inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>
-		</inertial>
-		<visual>
-	  		<origin xyz="0 0 ${lower_leg_length/2}"  rpy="0 ${-pi/2} 0.0"/>
-            <geometry>
-              <box size="${lower_leg_length} ${lower_leg_width} ${lower_leg_height}" />
-            </geometry>
-            <material name="leg">
-            <color rgba="0.7 0 0 0.7"/>
-            </material>
-   		</visual>
-		<collision>
-	  		<origin xyz="0 0 ${lower_leg_length/2}"  rpy="0 ${-pi/2} 0.0"/>
-            <geometry>
-              <box size="${lower_leg_length} ${lower_leg_width} ${lower_leg_height}" />
-            </geometry>
-			<contact_coefficients kd="1.0" kp="1000.0" mu="0"/>
-		</collision>  
+    <inertial>
+      <origin xyz="0 0 ${lower_leg_length/2}" rpy="0 ${-pi/2} 0.0"/>
+      <mass value="2.043"/>
+      <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 ${lower_leg_length/2}" rpy="0 ${-pi/2} 0.0"/>
+      <geometry>
+        <box size="${lower_leg_length} ${lower_leg_width} ${lower_leg_height}" />
+      </geometry>
+      <material name="leg">
+        <color rgba="0.7 0 0 0.7"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${lower_leg_length/2}" rpy="0 ${-pi/2} 0.0"/>
+      <geometry>
+        <box size="${lower_leg_length} ${lower_leg_width} ${lower_leg_height}" />
+      </geometry>
+      <contact_coefficients kd="1.0" kp="1000.0" mu="0"/>
+    </collision>
   </link>
-  <joint name = "left_ankle" type = "revolute">
-     <axis xyz="0 0 0"/>
-     <limit effort="1000.0" lower="0" upper="2" velocity="0.5"/>
-     <origin rpy="0 0 0" xyz="0 0 0"/>
-     <parent link="lower_left_leg"/>
-     <child link="left_foot"/>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lower_left_leg"/>
   </joint>
+
+
+  <joint name = "left_ankle" type = "revolute">
+    <axis xyz="0 0 0"/>
+    <limit effort="1000.0" lower="0" upper="2" velocity="0.5"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="lower_left_leg"/>
+    <child link="left_foot"/>
+  </joint>
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/biped</robotNamespace>
+    </plugin>
+  </gazebo>
+
+  <transmission name="left_ankle_transmission">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="left_ankle">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="left_ankle_motor">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
 </robot>
