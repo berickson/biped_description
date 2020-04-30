@@ -69,7 +69,7 @@
 
 
   <joint name = "left_ankle" type = "revolute">
-    <axis xyz="0 0 0"/>
+    <axis xyz="0 1 0"/>
     <limit effort="1000.0" lower="0" upper="2" velocity="0.5"/>
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <parent link="lower_left_leg"/>
@@ -81,6 +81,20 @@
       <robotNamespace>/biped</robotNamespace>
     </plugin>
   </gazebo>
+
+  <!--
+    Gazebo colors from
+    https://github.com/osrf/gazebo/blob/master/media/materials/scripts/gazebo.material
+  -->
+  <gazebo reference="left_foot">
+    <material>Gazebo/RedTransparent</material>
+  </gazebo>
+
+  <gazebo reference="lower_left_leg">
+    <material>Gazebo/RedTransparent</material>
+  </gazebo>
+
+
 
   <transmission name="left_ankle_transmission">
     <type>transmission_interface/SimpleTransmission</type>
