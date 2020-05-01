@@ -23,29 +23,30 @@
 
   <link name="base_link"></link>
 
-  <link name = "upper_left_leg">
-    <inertial>
-      <origin xyz="0 0 0" rpy="0 ${-pi/2} 0.0"/>
-      <mass value="2.043"/>
-      <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>
-    </inertial>
-    <visual>
-      <origin xyz="0 0 0" rpy="0 ${-pi/2} 0.0"/>
-      <geometry>
-        <box size="${upper_leg_length} ${upper_leg_width} ${upper_leg_height}" />
-      </geometry>
-      <material name="leg">
-        <color rgba="0.7 0 0 0.7"/>
-      </material>
-    </visual>
-    <collision>
-      <origin xyz="0 0 0" rpy="0 ${-pi/2} 0.0"/>
-      <geometry>
-        <box size="${upper_leg_length} ${upper_leg_width} ${upper_leg_height}" />
-      </geometry>
-      <contact_coefficients kd="1.0" kp="1000.0" mu="0"/>
-    </collision>
-  </link>
+  <xacro:macro name="box_link" params="name m x y z origin:='0 0 0' rpy:='0 0 0' color">
+    <link name = "${name}">
+      <inertial>
+        <origin xyz="${origin}" rpy="${rpy}"/>
+        <mass value="${m}"/>
+        <inertia ixx = "${m/12*(y*y+z*z)}" ixy = "0.0" ixz="0.0" iyy="${m/12*(x*x+z*z)}" iyz="0.0" izz="${m/12*(x*x+y*y)}"/>
+      </inertial>
+      <visual>
+        <origin xyz="${origin}" rpy="${rpy}"/>
+        <geometry>
+          <box size="${x} ${y} ${z}" />
+        </geometry>
+        <material name="${name}_material">
+          <color rgba = "${color}"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="${origin}" rpy="${rpy}"/>
+        <geometry>
+          <box size="${x} ${y} ${z}" />
+        </geometry>
+      </collision>
+    </link>
+  </xacro:macro>
 
 <link name="left_knee_motor">
    <inertial>
@@ -72,6 +73,10 @@
    </collision>
  </link>
 
+ <xacro:box_link name="upper_left_leg" x="${upper_leg_length}" y="${upper_leg_height}" z="${upper_leg_width}" m = "1"  origin="0 0 ${-upper_leg_length/2}" rpy="0 ${-pi/2} 0.0" color = "0 0.7 0 0.7"/>
+ <xacro:box_link name="lower_left_leg" x="${lower_leg_length}" y="${lower_leg_height}" z="${lower_leg_width}" m = "1" origin="0 0 ${-lower_leg_length/2}" rpy="0 ${-pi/2} 0.0" color = "0 0.7 0 0.7"/>
+
+<!--
   <link name = "lower_left_leg">
     <inertial>
       <origin xyz="0 0 ${-lower_leg_length/2}" rpy="0 ${-pi/2} 0.0"/>
@@ -90,11 +95,12 @@
     <collision>
       <origin xyz="0 0 ${-lower_leg_length/2}" rpy="0 ${-pi/2} 0.0"/>
       <geometry>
-        <box size="${lower_leg_length} ${lower_leg_width} ${lower_leg_height}" />
+        <box size="${lower_leg_length} ${lower_leg_width} ${lower_leg_height}" />b
       </geometry>
       <contact_coefficients kd="1.0" kp="1000.0" mu="0"/>
     </collision>
   </link>
+-->
     <link name="left_foot">
     <inertial>
       <origin xyz="0 0 ${-motor_radius -foot_height/2}" rpy="0 0.0 0.0"/>
@@ -153,7 +159,7 @@
 
   <joint name="upper_left_leg_to_knee_motor_joint" type="fixed">
     <parent link="upper_left_leg"/>
-    <origin xyz="0 0 ${-upper_leg_length/2}" rpy="0 0 0"/>
+    <origin xyz="0 0 ${-upper_leg_length}" rpy="0 0 0"/>
     <child link="left_knee_motor"/>
   </joint>
 
