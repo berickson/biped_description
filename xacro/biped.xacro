@@ -8,6 +8,14 @@
   <xacro:property name = "lower_leg_width" value = "0.01"/>
   <xacro:property name = "lower_leg_height" value = "0.02"/>
   <xacro:property name = "lower_leg_length" value = "0.20"/>
+
+  <xacro:property name = "upper_leg_width" value = "0.01"/>
+  <xacro:property name = "upper_leg_height" value = "0.02"/>
+  <xacro:property name = "upper_leg_length" value = "0.20"/>
+
+  <xacro:property name = "motor_length" value = "0.05"/>
+  <xacro:property name = "motor_radius" value = "0.025"/>
+
   <material name="body">
     <color rgba="0.5 0.5 0.3 0.7"/>
   </material>
@@ -15,14 +23,86 @@
 
   <link name="base_link"></link>
 
-  <link name="left_foot">
+  <link name = "upper_left_leg">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 ${-pi/2} 0.0"/>
+      <mass value="2.043"/>
+      <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 ${-pi/2} 0.0"/>
+      <geometry>
+        <box size="${upper_leg_length} ${upper_leg_width} ${upper_leg_height}" />
+      </geometry>
+      <material name="leg">
+        <color rgba="0.7 0 0 0.7"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 ${-pi/2} 0.0"/>
+      <geometry>
+        <box size="${upper_leg_length} ${upper_leg_width} ${upper_leg_height}" />
+      </geometry>
+      <contact_coefficients kd="1.0" kp="1000.0" mu="0"/>
+    </collision>
+  </link>
+
+<link name="left_knee_motor">
+   <inertial>
+     <origin xyz="0 0 0" rpy="0 0 0"/>
+     <mass value="1"/>
+     <inertia ixx="100"  ixy="0"  ixz="0" iyy="100" iyz="0" izz="100" />
+   </inertial>
+
+   <visual>
+     <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
+     <geometry>
+       <cylinder radius="${motor_radius}" length="${motor_length}"/>
+     </geometry>
+     <material name="Cyan">
+       <color rgba="0 1.0 1.0 1.0"/>
+     </material>
+   </visual>
+
+   <collision>
+     <origin xyz="0 0 0" rpy="0 0 0"/>
+     <geometry>
+       <cylinder radius="0.1" length="0.1"/>
+     </geometry>
+   </collision>
+ </link>
+
+  <link name = "lower_left_leg">
+    <inertial>
+      <origin xyz="0 0 ${-lower_leg_length/2}" rpy="0 ${-pi/2} 0.0"/>
+      <mass value="2.043"/>
+      <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 ${-lower_leg_length/2}" rpy="0 ${-pi/2} 0.0"/>
+      <geometry>
+        <box size="${lower_leg_length} ${lower_leg_width} ${lower_leg_height}" />
+      </geometry>
+      <material name="lleg">
+        <color rgba="0 0.7 0 0.7"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${-lower_leg_length/2}" rpy="0 ${-pi/2} 0.0"/>
+      <geometry>
+        <box size="${lower_leg_length} ${lower_leg_width} ${lower_leg_height}" />
+      </geometry>
+      <contact_coefficients kd="1.0" kp="1000.0" mu="0"/>
+    </collision>
+  </link>
+    <link name="left_foot">
     <inertial>
       <origin xyz="0 0 0" rpy="0 0.0 0.0"/>
       <mass value="2.043"/>
       <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>
     </inertial>
     <visual>
-      <origin xyz="0 0 ${foot_height/2}" rpy="0 0.0 0.0"/>
+      <origin xyz="0 0 ${-motor_radius -foot_height/2}" rpy="0 0.0 0.0"/>
       <geometry>
         <box size="${foot_length} ${foot_width} ${foot_height}" />
       </geometry>
@@ -31,40 +111,66 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 ${foot_height/2}" rpy="0 0.0 0.0"/>
+      <origin xyz="0 0 0" rpy="0 0.0 0.0"/>
       <geometry>
         <box size="${foot_length} ${foot_width} ${foot_height}" />
       </geometry>
       <contact_coefficients kd="1.0" kp="1000.0" mu="0"/>
     </collision>
   </link>
-  <link name = "lower_left_leg">
-    <inertial>
-      <origin xyz="0 0 ${lower_leg_length/2}" rpy="0 ${-pi/2} 0.0"/>
-      <mass value="2.043"/>
-      <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>
-    </inertial>
-    <visual>
-      <origin xyz="0 0 ${lower_leg_length/2}" rpy="0 ${-pi/2} 0.0"/>
-      <geometry>
-        <box size="${lower_leg_length} ${lower_leg_width} ${lower_leg_height}" />
-      </geometry>
-      <material name="leg">
-        <color rgba="0.7 0 0 0.7"/>
-      </material>
-    </visual>
-    <collision>
-      <origin xyz="0 0 ${lower_leg_length/2}" rpy="0 ${-pi/2} 0.0"/>
-      <geometry>
-        <box size="${lower_leg_length} ${lower_leg_width} ${lower_leg_height}" />
-      </geometry>
-      <contact_coefficients kd="1.0" kp="1000.0" mu="0"/>
-    </collision>
-  </link>
+
+
+ <link name="left_ankle_motor">
+   <inertial>
+     <origin xyz="0 0 0" rpy="0 0 0"/>
+     <mass value="1"/>
+     <inertia ixx="100"  ixy="0"  ixz="0" iyy="100" iyz="0" izz="100" />
+   </inertial>
+
+   <visual>
+     <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
+     <geometry>
+       <cylinder radius="${motor_radius}" length="${motor_length}"/>
+     </geometry>
+     <material name="Cyan">
+       <color rgba="0 1.0 1.0 1.0"/>
+     </material>
+   </visual>
+   <collision>
+     <origin xyz="0 0 0" rpy="0 0 0"/>
+     <geometry>
+       <cylinder radius="0.1" length="0.1"/>
+     </geometry>
+   </collision>
+ </link>
+
+
 
   <joint name="base_joint" type="fixed">
     <parent link="base_link"/>
+    <child link="upper_left_leg"/>
+  </joint>
+
+  <joint name="upper_left_leg_to_knee_motor_joint" type="fixed">
+    <parent link="upper_left_leg"/>
+    <origin xyz="0 0 ${-upper_leg_length/2}" rpy="0 0 0"/>
+    <child link="left_knee_motor"/>
+  </joint>
+
+
+  <joint name = "left_knee" type = "revolute">
+    <axis xyz="0 1 0"/>
+    <limit effort="1000.0" lower="0" upper="2" velocity="0.5"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="left_knee_motor"/>
     <child link="lower_left_leg"/>
+  </joint>
+
+
+  <joint name = "lower_left_leg_to_ankle_motor" type="fixed">
+     <parent link = "lower_left_leg"/>
+     <child link = "left_ankle_motor"/>
+     <origin xyz="0 0 ${-lower_leg_length} "/>
   </joint>
 
 
@@ -72,7 +178,7 @@
     <axis xyz="0 1 0"/>
     <limit effort="1000.0" lower="0" upper="2" velocity="0.5"/>
     <origin rpy="0 0 0" xyz="0 0 0"/>
-    <parent link="lower_left_leg"/>
+    <parent link="left_ankle_motor"/>
     <child link="left_foot"/>
   </joint>
 
@@ -91,9 +197,12 @@
   </gazebo>
 
   <gazebo reference="lower_left_leg">
-    <material>Gazebo/RedTransparent</material>
+    <material>Gazebo/Gold</material>
   </gazebo>
 
+  <gazebo reference="upper_left_leg">
+    <material>Gazebo/Red</material>
+  </gazebo>
 
 
   <transmission name="left_ankle_transmission">
@@ -106,5 +215,17 @@
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
+
+  <transmission name="left_knee_transmission">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="left_knee">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="left_knee_motor">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
 
 </robot>
