@@ -49,9 +49,9 @@
 
 <link name="left_knee_motor">
    <inertial>
-     <origin xyz="0 0 0" rpy="0 0 0"/>
+     <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
      <mass value="1"/>
-     <inertia ixx="100"  ixy="0"  ixz="0" iyy="100" iyz="0" izz="100" />
+     <inertia ixx="0.03"  ixy="0"  ixz="0" iyy="0.03" iyz="0" izz="0.03" />
    </inertial>
 
    <visual>
@@ -65,9 +65,9 @@
    </visual>
 
    <collision>
-     <origin xyz="0 0 0" rpy="0 0 0"/>
+     <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
      <geometry>
-       <cylinder radius="0.1" length="0.1"/>
+       <cylinder radius="${motor_radius}" length="${motor_length}"/>
      </geometry>
    </collision>
  </link>
@@ -97,7 +97,7 @@
   </link>
     <link name="left_foot">
     <inertial>
-      <origin xyz="0 0 0" rpy="0 0.0 0.0"/>
+      <origin xyz="0 0 ${-motor_radius -foot_height/2}" rpy="0 0.0 0.0"/>
       <mass value="2.043"/>
       <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>
     </inertial>
@@ -111,7 +111,7 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0.0 0.0"/>
+      <origin xyz="0 0 ${-motor_radius -foot_height/2}" rpy="0 0.0 0.0"/>
       <geometry>
         <box size="${foot_length} ${foot_width} ${foot_height}" />
       </geometry>
@@ -124,7 +124,7 @@
    <inertial>
      <origin xyz="0 0 0" rpy="0 0 0"/>
      <mass value="1"/>
-     <inertia ixx="100"  ixy="0"  ixz="0" iyy="100" iyz="0" izz="100" />
+     <inertia ixx="0.03"  ixy="0"  ixz="0" iyy="0.03" iyz="0" izz="0.03" />
    </inertial>
 
    <visual>
@@ -137,9 +137,9 @@
      </material>
    </visual>
    <collision>
-     <origin xyz="0 0 0" rpy="0 0 0"/>
+     <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
      <geometry>
-       <cylinder radius="0.1" length="0.1"/>
+       <cylinder radius="${motor_radius}" length="${motor_length}"/>
      </geometry>
    </collision>
  </link>
@@ -160,7 +160,7 @@
 
   <joint name = "left_knee" type = "revolute">
     <axis xyz="0 1 0"/>
-    <limit effort="1000.0" lower="0" upper="2" velocity="0.5"/>
+    <limit effort="1000.0" lower="-2" upper="2" velocity="0.5"/>
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <parent link="left_knee_motor"/>
     <child link="lower_left_leg"/>
@@ -176,7 +176,7 @@
 
   <joint name = "left_ankle" type = "revolute">
     <axis xyz="0 1 0"/>
-    <limit effort="1000.0" lower="0" upper="2" velocity="0.5"/>
+    <limit effort="1000.0" lower="-2" upper="2" velocity="0.5"/>
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <parent link="left_ankle_motor"/>
     <child link="left_foot"/>
