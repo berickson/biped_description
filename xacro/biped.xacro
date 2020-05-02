@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <robot name ="biped" 
   xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- 
+    Properties
+  -->
   <xacro:property name = "foot_width" value = "0.05"/>
   <xacro:property name = "foot_height" value = "0.005"/>
   <xacro:property name = "foot_length" value = "0.1000"/>
@@ -16,13 +20,13 @@
   <xacro:property name = "motor_length" value = "0.05"/>
   <xacro:property name = "motor_radius" value = "0.025"/>
 
-  <material name="body">
-    <color rgba="0.5 0.5 0.3 0.7"/>
-  </material>
+  <xacro:property name = "color_red" value = "1 0 0 1"/>
+  <xacro:property name = "color_gold" value = "0.831 0.686 0.216 1"/>
+  <xacro:property name = "color_dark_grey" value = "0.4 0.4 0.4 1"/>
 
-
-  <link name="base_link"></link>
-
+  <!-- 
+    Macros 
+  -->
   <xacro:macro name="box_link" params="name m x y z origin:='0 0 0' rpy:='0 0 0' color">
     <link name = "${name}">
       <inertial>
@@ -48,110 +52,46 @@
     </link>
   </xacro:macro>
 
-<link name="left_knee_motor">
-   <inertial>
-     <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
-     <mass value="1"/>
-     <inertia ixx="0.03"  ixy="0"  ixz="0" iyy="0.03" iyz="0" izz="0.03" />
-   </inertial>
+  <xacro:macro name="cylinder_link" params="name r l m color origin:='0 0 0' rpy:='0 0 0' ">
+    <link name="${name}">
+      <inertial>
+        <origin xyz="${origin}" rpy="${rpy}" />
+        <mass value="${m}"/>
+        <inertia ixx="${m*r*r/4+m*l*l}" ixy="0" ixz="0" iyy="${m*r*r/4+m*l*l}" iyz="0" izz="${m*r*r/2}" />
+      </inertial>
 
-   <visual>
-     <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
-     <geometry>
-       <cylinder radius="${motor_radius}" length="${motor_length}"/>
-     </geometry>
-     <material name="Cyan">
-       <color rgba="0 1.0 1.0 1.0"/>
-     </material>
-   </visual>
+      <visual>
+        <origin xyz="${origin}" rpy="${rpy}" />
+        <geometry>
+          <cylinder radius="${r}" length="${l}"/>
+        </geometry>
+        <material name="${name}_color">
+          <color rgba="${color}"/>
+        </material>
+      </visual>
 
-   <collision>
-     <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
-     <geometry>
-       <cylinder radius="${motor_radius}" length="${motor_length}"/>
-     </geometry>
-   </collision>
- </link>
+      <collision>
+        <origin xyz="${origin}" rpy="${rpy}" />
+        <geometry>
+          <cylinder radius="${r}" length="${l}"/>
+        </geometry>
+      </collision>
+    </link>
+  </xacro:macro>
 
- <xacro:box_link name="upper_left_leg" x="${upper_leg_length}" y="${upper_leg_height}" z="${upper_leg_width}" m = "1"  origin="0 0 ${-upper_leg_length/2}" rpy="0 ${-pi/2} 0.0" color = "0 0.7 0 0.7"/>
- <xacro:box_link name="lower_left_leg" x="${lower_leg_length}" y="${lower_leg_height}" z="${lower_leg_width}" m = "1" origin="0 0 ${-lower_leg_length/2}" rpy="0 ${-pi/2} 0.0" color = "0 0.7 0 0.7"/>
+  <!-- 
+    Links
+  -->
+  <link name="base_link"></link>
+  <xacro:cylinder_link name="left_knee_motor" m="1" r="${motor_radius}" l="${motor_length}" rpy="${pi/2} 0 0" color="${color_dark_grey}"/>
+  <xacro:box_link name="upper_left_leg" x="${upper_leg_length}" y="${upper_leg_height}" z="${upper_leg_width}" m = "1" origin="0 0 ${-upper_leg_length/2}" rpy="0 ${-pi/2} 0.0" color = "${color_red}"/>
+  <xacro:box_link name="lower_left_leg" x="${lower_leg_length}" y="${lower_leg_height}" z="${lower_leg_width}" m = "1" origin="0 0 ${-lower_leg_length/2}" rpy="0 ${-pi/2} 0.0" color = "${color_gold}"/>
+  <xacro:cylinder_link name="left_ankle_motor" m="1" r="${motor_radius}" l="${motor_length}" rpy="${pi/2} 0 0" color="${color_dark_grey}"/>
+  <xacro:box_link name="left_foot" x="${foot_length}" y="${foot_width}" z="${foot_height}" m = "20" origin="0 0 ${-motor_radius -foot_height/2}" rpy="0 0.0 0.0" color = "${color_gold}"/>
 
-<!--
-  <link name = "lower_left_leg">
-    <inertial>
-      <origin xyz="0 0 ${-lower_leg_length/2}" rpy="0 ${-pi/2} 0.0"/>
-      <mass value="2.043"/>
-      <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>
-    </inertial>
-    <visual>
-      <origin xyz="0 0 ${-lower_leg_length/2}" rpy="0 ${-pi/2} 0.0"/>
-      <geometry>
-        <box size="${lower_leg_length} ${lower_leg_width} ${lower_leg_height}" />
-      </geometry>
-      <material name="lleg">
-        <color rgba="0 0.7 0 0.7"/>
-      </material>
-    </visual>
-    <collision>
-      <origin xyz="0 0 ${-lower_leg_length/2}" rpy="0 ${-pi/2} 0.0"/>
-      <geometry>
-        <box size="${lower_leg_length} ${lower_leg_width} ${lower_leg_height}" />b
-      </geometry>
-      <contact_coefficients kd="1.0" kp="1000.0" mu="0"/>
-    </collision>
-  </link>
--->
-    <link name="left_foot">
-    <inertial>
-      <origin xyz="0 0 ${-motor_radius -foot_height/2}" rpy="0 0.0 0.0"/>
-      <mass value="2.043"/>
-      <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>
-    </inertial>
-    <visual>
-      <origin xyz="0 0 ${-motor_radius -foot_height/2}" rpy="0 0.0 0.0"/>
-      <geometry>
-        <box size="${foot_length} ${foot_width} ${foot_height}" />
-      </geometry>
-      <material name = "foot">
-        <color rgba="0.7 0 0 0.7"/>
-      </material>
-    </visual>
-    <collision>
-      <origin xyz="0 0 ${-motor_radius -foot_height/2}" rpy="0 0.0 0.0"/>
-      <geometry>
-        <box size="${foot_length} ${foot_width} ${foot_height}" />
-      </geometry>
-      <contact_coefficients kd="1.0" kp="1000.0" mu="0"/>
-    </collision>
-  </link>
-
-
- <link name="left_ankle_motor">
-   <inertial>
-     <origin xyz="0 0 0" rpy="0 0 0"/>
-     <mass value="1"/>
-     <inertia ixx="0.03"  ixy="0"  ixz="0" iyy="0.03" iyz="0" izz="0.03" />
-   </inertial>
-
-   <visual>
-     <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
-     <geometry>
-       <cylinder radius="${motor_radius}" length="${motor_length}"/>
-     </geometry>
-     <material name="Cyan">
-       <color rgba="0 1.0 1.0 1.0"/>
-     </material>
-   </visual>
-   <collision>
-     <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
-     <geometry>
-       <cylinder radius="${motor_radius}" length="${motor_length}"/>
-     </geometry>
-   </collision>
- </link>
-
-
-
+  <!-- 
+    Joints
+  -->
   <joint name="base_joint" type="fixed">
     <parent link="base_link"/>
     <child link="upper_left_leg"/>
@@ -163,7 +103,6 @@
     <child link="left_knee_motor"/>
   </joint>
 
-
   <joint name = "left_knee" type = "revolute">
     <axis xyz="0 1 0"/>
     <limit effort="1000.0" lower="-2" upper="2" velocity="0.5"/>
@@ -172,13 +111,11 @@
     <child link="lower_left_leg"/>
   </joint>
 
-
   <joint name = "lower_left_leg_to_ankle_motor" type="fixed">
-     <parent link = "lower_left_leg"/>
-     <child link = "left_ankle_motor"/>
-     <origin xyz="0 0 ${-lower_leg_length} "/>
+    <parent link = "lower_left_leg"/>
+    <child link = "left_ankle_motor"/>
+    <origin xyz="0 0 ${-lower_leg_length} "/>
   </joint>
-
 
   <joint name = "left_ankle" type = "revolute">
     <axis xyz="0 1 0"/>
@@ -187,12 +124,6 @@
     <parent link="left_ankle_motor"/>
     <child link="left_foot"/>
   </joint>
-
-  <gazebo>
-    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-      <robotNamespace>/biped</robotNamespace>
-    </plugin>
-  </gazebo>
 
   <!--
     Gazebo colors from
@@ -210,7 +141,27 @@
     <material>Gazebo/Red</material>
   </gazebo>
 
+  <gazebo reference="left_knee_motor">
+    <material>Gazebo/DarkGray</material>
+  </gazebo>
 
+  <gazebo reference="left_ankle_motor">
+    <material>Gazebo/DarkGray</material>
+  </gazebo>
+
+
+  <!--
+    Gazebo ros control
+  -->
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/biped</robotNamespace>
+    </plugin>
+  </gazebo>
+
+  <!-- 
+    Transmissions for robot control
+  -->
   <transmission name="left_ankle_transmission">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="left_ankle">
@@ -232,6 +183,5 @@
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
-
 
 </robot>
