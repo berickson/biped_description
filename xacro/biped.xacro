@@ -8,17 +8,26 @@
   <xacro:property name = "foot_width" value = "0.05"/>
   <xacro:property name = "foot_height" value = "0.005"/>
   <xacro:property name = "foot_length" value = "0.1000"/>
+  <xacro:property name = "foot_mass" value = "10"/>
 
   <xacro:property name = "lower_leg_width" value = "0.01"/>
   <xacro:property name = "lower_leg_height" value = "0.02"/>
   <xacro:property name = "lower_leg_length" value = "0.20"/>
+  <xacro:property name = "lower_leg_mass" value = "0.10"/>
 
   <xacro:property name = "upper_leg_width" value = "0.01"/>
   <xacro:property name = "upper_leg_height" value = "0.02"/>
   <xacro:property name = "upper_leg_length" value = "0.20"/>
+  <xacro:property name = "upper_leg_mass" value = "0.10"/>
 
-  <xacro:property name = "motor_length" value = "0.05"/>
-  <xacro:property name = "motor_radius" value = "0.025"/>
+<!--
+  Motor based on RMD-L-4015
+  http://www.gyems.cn/794904.html
+-->
+  <xacro:property name = "motor_length" value = "0.033"/>
+  <xacro:property name = "motor_radius" value = "0.0198"/>
+  <xacro:property name = "motor_mass" value = "0.120"/>
+  <xacro:property name = "motor_torque_nm" value = "0.49"/> <!-- stall torque, nominal is 0.22 -->
 
   <xacro:property name = "color_red" value = "1 0 0 1"/>
   <xacro:property name = "color_gold" value = "0.831 0.686 0.216 1"/>
@@ -30,7 +39,7 @@
   <xacro:macro name="box_link" params="name m x y z origin:='0 0 0' rpy:='0 0 0' color">
     <link name = "${name}">
       <inertial>
-        <origin xyz="${origin}" rpy="${rpy}"/>
+        <origin xyz="0 0 0" rpy="${rpy}"/>
         <mass value="${m}"/>
         <inertia ixx = "${m/12*(y*y+z*z)}" ixy = "0.0" ixz="0.0" iyy="${m/12*(x*x+z*z)}" iyz="0.0" izz="${m/12*(x*x+y*y)}"/>
       </inertial>
@@ -83,11 +92,11 @@
     Links
   -->
   <link name="base_link"></link>
-  <xacro:cylinder_link name="left_knee_motor" m="1" r="${motor_radius}" l="${motor_length}" rpy="${pi/2} 0 0" color="${color_dark_grey}"/>
-  <xacro:box_link name="upper_left_leg" x="${upper_leg_length}" y="${upper_leg_height}" z="${upper_leg_width}" m = "1" origin="0 0 ${-upper_leg_length/2}" rpy="0 ${-pi/2} 0.0" color = "${color_red}"/>
-  <xacro:box_link name="lower_left_leg" x="${lower_leg_length}" y="${lower_leg_height}" z="${lower_leg_width}" m = "1" origin="0 0 ${-lower_leg_length/2}" rpy="0 ${-pi/2} 0.0" color = "${color_gold}"/>
-  <xacro:cylinder_link name="left_ankle_motor" m="1" r="${motor_radius}" l="${motor_length}" rpy="${pi/2} 0 0" color="${color_dark_grey}"/>
-  <xacro:box_link name="left_foot" x="${foot_length}" y="${foot_width}" z="${foot_height}" m = "20" origin="0 0 ${-motor_radius -foot_height/2}" rpy="0 0.0 0.0" color = "${color_gold}"/>
+  <xacro:cylinder_link name="left_knee_motor" m="${motor_mass}" r="${motor_radius}" l="${motor_length}" rpy="${pi/2} 0 0" color="${color_dark_grey}"/>
+  <xacro:box_link name="upper_left_leg" x="${upper_leg_length}" y="${upper_leg_height}" z="${upper_leg_width}" m = "${upper_leg_mass}" origin="0 0 ${-upper_leg_length/2}" rpy="0 ${-pi/2} 0.0" color = "${color_red}"/>
+  <xacro:box_link name="lower_left_leg" x="${lower_leg_length}" y="${lower_leg_height}" z="${lower_leg_width}" m = "${lower_leg_mass}" origin="0 0 ${-lower_leg_length/2}" rpy="0 ${-pi/2} 0.0" color = "${color_gold}"/>
+  <xacro:cylinder_link name="left_ankle_motor" m="${motor_mass}" r="${motor_radius}" l="${motor_length}" rpy="${pi/2} 0 0" color="${color_dark_grey}"/>
+  <xacro:box_link name="left_foot" x="${foot_length}" y="${foot_width}" z="${foot_height}" m = "${foot_mass}" origin="0 0 ${-motor_radius -foot_height/2}" rpy="0 0.0 0.0" color = "${color_gold}"/>
 
   <!-- 
     Joints
@@ -105,7 +114,7 @@
 
   <joint name = "left_knee" type = "revolute">
     <axis xyz="0 1 0"/>
-    <limit effort="1000.0" lower="${-2*pi}" upper="${2*pi}" velocity="0.5"/>
+    <limit effort="${motor_torque_nm}" lower="${-2*pi}" upper="${2*pi}" velocity="0.5"/>
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <parent link="left_knee_motor"/>
     <child link="lower_left_leg"/>
@@ -119,7 +128,7 @@
 
   <joint name = "left_ankle" type = "revolute">
     <axis xyz="0 1 0"/>
-    <limit effort="1000.0" lower="${-2*pi}" upper="${2*pi}" velocity="0.5"/>
+    <limit effort="${motor_torque_nm}" lower="${-2*pi}" upper="${2*pi}" velocity="0.5"/>
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <parent link="left_ankle_motor"/>
     <child link="left_foot"/>
