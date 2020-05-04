@@ -5,6 +5,12 @@
   <!-- 
     Properties
   -->
+  <xacro:property name = "torso_width" value = "0.1"/>
+  <xacro:property name = "torso_height" value = "0.15"/>
+  <xacro:property name = "torso_depth" value = "0.05"/>
+  <xacro:property name = "torso_mass" value = "0.2"/>
+
+
   <xacro:property name = "foot_width" value = "0.05"/>
   <xacro:property name = "foot_height" value = "0.005"/>
   <xacro:property name = "foot_length" value = "0.1000"/>
@@ -27,7 +33,7 @@
   <xacro:property name = "motor_length" value = "0.033"/>
   <xacro:property name = "motor_radius" value = "0.0198"/>
   <xacro:property name = "motor_mass" value = "0.120"/>
-  <xacro:property name = "motor_torque_nm" value = "0.49"/> <!-- stall torque, nominal is 0.22 -->
+  <xacro:property name = "motor_torque_nm" value = "2.49"/> <!-- stall torque 0.49 , nominal is 0.22 -->
 
   <xacro:property name = "color_red" value = "1 0 0 1"/>
   <xacro:property name = "color_gold" value = "0.831 0.686 0.216 1"/>
@@ -92,8 +98,10 @@
     Links
   -->
   <link name="base_link"></link>
-  <xacro:cylinder_link name="left_knee_motor" m="${motor_mass}" r="${motor_radius}" l="${motor_length}" rpy="${pi/2} 0 0" color="${color_dark_grey}"/>
+  <xacro:box_link name="torso" x="${torso_depth}" y="${torso_width}" z="${torso_height}" m = "${torso_mass}" origin="0 0 ${-torso_height/2}" rpy="0 0 0.0" color = "${color_dark_grey}"/>
+  <xacro:cylinder_link name="left_hip_motor" m="${motor_mass}" r="${motor_radius}" l="${motor_length}" rpy="${pi/2} 0 0" color="${color_dark_grey}"/>
   <xacro:box_link name="upper_left_leg" x="${upper_leg_length}" y="${upper_leg_height}" z="${upper_leg_width}" m = "${upper_leg_mass}" origin="0 0 ${-upper_leg_length/2}" rpy="0 ${-pi/2} 0.0" color = "${color_red}"/>
+  <xacro:cylinder_link name="left_knee_motor" m="${motor_mass}" r="${motor_radius}" l="${motor_length}" rpy="${pi/2} 0 0" color="${color_dark_grey}"/>
   <xacro:box_link name="lower_left_leg" x="${lower_leg_length}" y="${lower_leg_height}" z="${lower_leg_width}" m = "${lower_leg_mass}" origin="0 0 ${-lower_leg_length/2}" rpy="0 ${-pi/2} 0.0" color = "${color_gold}"/>
   <xacro:cylinder_link name="left_ankle_motor" m="${motor_mass}" r="${motor_radius}" l="${motor_length}" rpy="${pi/2} 0 0" color="${color_dark_grey}"/>
   <xacro:box_link name="left_foot" x="${foot_length}" y="${foot_width}" z="${foot_height}" m = "${foot_mass}" origin="0 0 ${-motor_radius -foot_height/2}" rpy="0 0.0 0.0" color = "${color_gold}"/>
@@ -103,6 +111,20 @@
   -->
   <joint name="base_joint" type="fixed">
     <parent link="base_link"/>
+    <child link="torso"/>
+  </joint>
+
+  <joint name="torso_to_left_hip_motor_joint" type="fixed">
+    <parent link="torso"/>
+    <origin xyz="0 ${-torso_width/2} ${-torso_height}" rpy="0 0 0"/>
+    <child link="left_hip_motor"/>
+  </joint>
+
+  <joint name = "left_hip" type = "revolute">
+    <axis xyz="0 1 0"/>
+    <limit effort="${motor_torque_nm}" lower="${-2*pi}" upper="${2*pi}" velocity="0.5"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="left_hip_motor"/>
     <child link="upper_left_leg"/>
   </joint>
 
@@ -128,7 +150,7 @@
 
   <joint name = "left_ankle" type = "revolute">
     <axis xyz="0 1 0"/>
-    <limit effort="${motor_torque_nm}" lower="${-2*pi}" upper="${2*pi}" velocity="0.5"/>
+    <limit effort="${motor_torque_nm*3}" lower="${-2*pi}" upper="${2*pi}" velocity="0.5"/>
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <parent link="left_ankle_motor"/>
     <child link="left_foot"/>
@@ -158,6 +180,14 @@
     <material>Gazebo/DarkGray</material>
   </gazebo>
 
+  <gazebo reference="left_hip_motor">
+    <material>Gazebo/DarkGray</material>
+  </gazebo>
+
+  <gazebo reference="torso">
+    <material>Gazebo/Gold</material>
+  </gazebo>
+
 
   <!--
     Gazebo ros control
@@ -178,7 +208,7 @@
     </joint>
     <actuator name="left_ankle_motor">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-      <mechanicalReduction>1</mechanicalReduction>
+      <mechanicalReduction>3</mechanicalReduction>
     </actuator>
   </transmission>
 
@@ -188,6 +218,17 @@
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     </joint>
     <actuator name="left_knee_motor">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="left_hip_transmission">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="left_hip">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="left_hip_motor">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
