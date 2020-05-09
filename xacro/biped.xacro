@@ -6,9 +6,9 @@
     Properties
   -->
   <xacro:property name = "torso_width" value = "0.1"/>
-  <xacro:property name = "torso_height" value = "0.15"/>
-  <xacro:property name = "torso_depth" value = "0.05"/>
-  <xacro:property name = "torso_mass" value = "0.2"/>
+  <xacro:property name = "torso_height" value = "0.10"/>
+  <xacro:property name = "torso_depth" value = "0.15"/>
+  <xacro:property name = "torso_mass" value = "0.5"/>
 
 
   <xacro:property name = "foot_width" value = "0.05"/>
@@ -45,7 +45,7 @@
   <xacro:macro name="box_link" params="name m x y z origin:='0 0 0' rpy:='0 0 0' color">
     <link name = "${name}">
       <inertial>
-        <origin xyz="0 0 0" rpy="${rpy}"/>
+        <origin xyz="${origin}" rpy="${rpy}"/>
         <mass value="${m}"/>
         <inertia ixx = "${m/12*(y*y+z*z)}" ixy = "0.0" ixz="0.0" iyy="${m/12*(x*x+z*z)}" iyz="0.0" izz="${m/12*(x*x+y*y)}"/>
       </inertial>
@@ -99,7 +99,7 @@
     Links
   -->
   <link name="base_link"></link>
-  <xacro:box_link name="torso" x="${torso_depth}" y="${torso_width}" z="${torso_height}" m = "${torso_mass}" origin="0 0 ${-torso_height/2}" rpy="0 0 0.0" color = "${color_dark_grey}"/>
+  <xacro:box_link name="torso" x="${torso_depth}" y="${torso_width}" z="${torso_height}" m = "${torso_mass}" origin="0 0 ${-torso_height/2}" rpy="0 0 0.0" color = "${color_gold}"/>
 
   <xacro:macro name="leg_assembly" params="leg_name origin">
 
@@ -213,8 +213,8 @@
 
   </xacro:macro>
 
-  <xacro:leg_assembly leg_name="left" origin="0 ${torso_width/2} ${-torso_height}"/>
-  <xacro:leg_assembly leg_name="right" origin="0 ${-torso_width/2} ${-torso_height}"/>
+  <xacro:leg_assembly leg_name="left" origin="0 ${torso_width/2+motor_length/2} ${-motor_radius}"/>
+  <xacro:leg_assembly leg_name="right" origin="0 ${-(torso_width/2+motor_length/2)} ${-motor_radius}"/>
 
   <!-- 
     Joints
@@ -222,6 +222,7 @@
   <joint name="base_joint" type="fixed">
     <parent link="base_link"/>
     <child link="torso"/>
+    <origin xyz="0 0 0"/>
   </joint>
 
 
